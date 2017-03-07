@@ -5,11 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 public class MainClass {
 	public static void main(String[] args) {
+		annotateQueries();
+	}
+	
+	public static void annotateQueries() {
 		AnnotateText annotator = new AnnotateText();
 		try {
 			annotator.initialize("config/pipeline-config.properties");
@@ -33,11 +36,10 @@ public class MainClass {
 				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 					line = line + ".";
 				}
-				System.out.println(line);
 				try {
 					TextAnnotation ta = annotator.annotate(file, index.toString(), line);
 					tas.add(ta);
-				} catch (AnnotatorException e) {
+				} catch (Exception e) {
 					try {
 						bw.write(line + "\n");
 					} catch (IOException e1) {
