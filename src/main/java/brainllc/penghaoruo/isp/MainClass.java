@@ -1,23 +1,62 @@
 package brainllc.penghaoruo.isp;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
-import edu.illinois.cs.cogcomp.annotation.AnnotatorService;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager;
-import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory;
 
 public class MainClass {
-	public static void main(String[] args) throws IOException, AnnotatorException {
-		String docId = "APW-20140101.3018"; // arbitrary string identifier
-		String textId = "body"; // arbitrary string identifier
-		String text = "A squirrel is storing a lot of nuts to prepare for a seasonal change in the environment."; // contains plain text to be annotated
-
-		ResourceManager userConfig = new ResourceManager("config/pipeline-config.properties");
-		AnnotatorService pipeline = PipelineFactory.buildPipeline(userConfig);
-		TextAnnotation ta = pipeline.createAnnotatedTextAnnotation(docId, textId, text);
-		System.out.println(ta.getAvailableViews());
+	public static void main(String[] args) {
+		AnnotateText annotator = new AnnotateText();
+		try {
+			annotator.initialize("config/pipeline-config.properties");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Annotator Failure!");
+			System.exit(-1);
+		}
+		
+		String path = "../../data/queries/";
+		File f = new File(path);
+		String[] files = f.list();
+		BufferedWriter bw = IOManager.openWriter("annotate_miss.txt");
+		for (String file : files) {
+			ArrayList<String> lines = IOManager.readLines(path + file);
+			ArrayList<TextAnnotation> tas = new ArrayList<TextAnnotation>();
+			Integer index = 0;
+			for (String line : lines) {
+				line = line.trim();
+				char c = line.charAt(line.length()-1);
+				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+					line = line + ".";
+				}
+				try {
+					TextAnnotation ta = annotator.annotate(file, index.toString(), line);
+					tas.add(ta);
+				} catch (AnnotatorException e) {
+					try {
+						bw.write(line + "\n");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				}
+				index += 1;
+				System.out.println(index);
+			}
+			try {
+				FileSerialization.serialize(file + "-TA", tas);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-
 }
