@@ -33,6 +33,7 @@ public class MainClass {
 				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 					line = line + ".";
 				}
+				System.out.println(line);
 				try {
 					TextAnnotation ta = annotator.annotate(file, index.toString(), line);
 					tas.add(ta);
