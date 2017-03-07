@@ -42,6 +42,7 @@ public class MainClass {
 				} catch (Exception e) {
 					try {
 						bw.write(line + "\n");
+						bw.flush();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
