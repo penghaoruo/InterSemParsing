@@ -9,7 +9,8 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 
 public class MainClass {
 	public static void main(String[] args) {
-		annotateQueries();
+		//annotateQueries();
+		getSemanticParses();
 	}
 	
 	public static void annotateQueries() {
@@ -61,6 +62,47 @@ public class MainClass {
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void getSemanticParses() {
+		ArrayList<String> lines = IOManager.readLines("list.txt");
+		ArrayList<TextAnnotation> tas = null;
+		for (String line: lines) {
+			try {
+				tas = FileSerialization.deserialize(line + "-TA");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			BufferedWriter bw = IOManager.openWriter(line + "-ann");
+			for (TextAnnotation ta: tas) {
+				ArrayList<String> strs = SemanticParse.getParse(ta);
+				if (strs == null) {
+					continue;
+				}
+				try {
+					for (String str : strs) {
+						bw.write(str + "\n");
+						bw.flush();
+					}
+					bw.write("\n");
+					bw.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			try {
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Processing Done!");
 		}
 	}
 }
