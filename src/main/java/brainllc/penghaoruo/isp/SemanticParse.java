@@ -26,6 +26,7 @@ public class SemanticParse {
 		View srl = ta.getView(ViewNames.SRL_VERB);
 		View pos = ta.getView(ViewNames.POS);
 		View dep = ta.getView(ViewNames.DEPENDENCY_STANFORD);
+		View ner = ta.getView(ViewNames.NER_CONLL);
 		
 		if (phrases == null || srl == null || pos == null || dep == null) {
 			return null;
@@ -33,6 +34,8 @@ public class SemanticParse {
 		res.add("Phrases: " + phrases.toString());
 		res.add("POS: " + pos.toString());
 		res.add("DEP: " + dep.toString());
+		res.add("SRL: " + srl.toString());
+		res.add("NER: " + ner.toString());
 		
 		ArrayList<Constituent> predicates = getPredicates(srl);
 		if (predicates.size() == 0) {
