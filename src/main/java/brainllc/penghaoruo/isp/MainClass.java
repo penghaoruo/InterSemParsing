@@ -15,7 +15,7 @@ public class MainClass {
 		annotateTest();
 	}
 	
-	public static void annotateQueries() {
+	public static void annotateTest() {
 		AnnotateText annotator = new AnnotateText();
 		try {
 			annotator.initialize("config/pipeline-config.properties");
@@ -48,12 +48,11 @@ public class MainClass {
 					e.printStackTrace();
 				}
 				index += 1;
-				//System.out.println(index);
 			}
 		}
 	}
 	
-	public static void annotateTest() {
+	public static void annotateQueries() {
 		AnnotateText annotator = new AnnotateText();
 		try {
 			annotator.initialize("config/pipeline-config.properties");
