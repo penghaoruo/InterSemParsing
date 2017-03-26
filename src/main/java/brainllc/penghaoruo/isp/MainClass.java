@@ -5,15 +5,54 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 public class MainClass {
 	public static void main(String[] args) {
 		//annotateQueries();
-		getSemanticParses();
+		//getSemanticParses();
+		annotateTest();
 	}
 	
 	public static void annotateQueries() {
+		AnnotateText annotator = new AnnotateText();
+		try {
+			annotator.initialize("config/pipeline-config.properties");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Annotator Failure!");
+			System.exit(-1);
+		}
+		
+		String path = "../../data/queries/";
+		File f = new File(path);
+		String[] files = f.list();
+		for (String file : files) {
+			ArrayList<String> lines = IOManager.readLines(path + file);
+			Integer index = 0;
+			for (String line : lines) {
+				line = line.trim();
+				char c = line.charAt(line.length()-1);
+				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+					line = line + ".";
+				}
+				try {
+					TextAnnotation ta = annotator.annotate(file, index.toString(), line);
+					if (ta.hasView(ViewNames.SRL_VERB)) {
+						System.out.println(line);
+						System.out.println(ta.getView(ViewNames.SRL_VERB));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				index += 1;
+				//System.out.println(index);
+			}
+		}
+	}
+	
+	public static void annotateTest() {
 		AnnotateText annotator = new AnnotateText();
 		try {
 			annotator.initialize("config/pipeline-config.properties");
