@@ -42,6 +42,7 @@ public class MainClass {
 					if (ta.hasView(ViewNames.SRL_VERB)) {
 						System.out.println(line);
 						System.out.println(ta.getView(ViewNames.SRL_VERB));
+						System.out.flush();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
