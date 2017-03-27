@@ -16,14 +16,7 @@ public class MainClass {
 	}
 	
 	public static void annotateTest() {
-		AnnotateText annotator = new AnnotateText();
-		try {
-			annotator.initialize("config/pipeline-config.properties");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Annotator Failure!");
-			System.exit(-1);
-		}
+		UserCuratorClient.init();
 		
 		String path = "../../data/queries/";
 		File f = new File(path);
@@ -38,7 +31,7 @@ public class MainClass {
 					line = line + ".";
 				}
 				try {
-					TextAnnotation ta = annotator.annotate(file, index.toString(), line);
+					TextAnnotation ta = UserCuratorClient.annotate(file, index.toString(), line);
 					if (ta.hasView(ViewNames.SRL_VERB)) {
 						System.out.println(line);
 						System.out.println(ta.getView(ViewNames.SRL_VERB));
