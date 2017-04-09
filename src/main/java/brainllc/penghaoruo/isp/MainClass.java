@@ -12,7 +12,8 @@ public class MainClass {
 	public static void main(String[] args) {
 		//annotateQueries();
 		//getSemanticParses();
-		annotateTest();
+		//annotateTest();
+		outputSignals("srl");
 	}
 	
 	public static void annotateTest() {
@@ -132,6 +133,55 @@ public class MainClass {
 				bw.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Processing Done!");
+		}
+	}
+	
+	public static void outputSignals(String p) {
+		ArrayList<String> lines = IOManager.readLines("list.txt");
+		ArrayList<TextAnnotation> tas = null;
+		for (String line: lines) {
+			String file = line + "-TA";
+			if (p.equals("srl")) {
+				file = line.replace("txt", "ta-srl");
+			}
+			try {
+				tas = FileSerialization.deserialize(file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			line = line.substring(0,line.length()-4);
+			line = line + "-" + p + ".txt";
+			BufferedWriter bw = IOManager.openWriter(line);
+			for (TextAnnotation ta: tas) {
+				String str = null;
+				if (p.equals("phrases")) {
+					str = SemanticParse.getPhrases(ta);
+				}
+				if (p.equals("ner")) {
+					str = SemanticParse.getNER(ta);
+				}
+				if (p.equals("srl")) {
+					str = SemanticParse.getSRL(ta);
+				}
+				try {
+					if (str != null) {
+						bw.write(ta.getText() + "\n");
+						bw.write(str + "\n");
+						bw.write("\n");
+						bw.flush();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				bw.close();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println("Processing Done!");

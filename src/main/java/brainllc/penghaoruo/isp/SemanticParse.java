@@ -12,6 +12,62 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 public class SemanticParse {
 	private static ArrayList<String> connectives = null;
 	
+	public static String getPhrases(TextAnnotation ta) {
+		if (!ta.hasView(ViewNames.SHALLOW_PARSE)) {
+			return null;
+		}
+		View phrases = ta.getView(ViewNames.SHALLOW_PARSE);
+		if (phrases == null) {
+			return null;
+		}
+		return phrases.toString();
+	}
+	
+	public static String getNER(TextAnnotation ta) {
+		if (!ta.hasView(ViewNames.NER_CONLL)) {
+			return null;
+		}
+		View ner = ta.getView(ViewNames.NER_CONLL);
+		if (ner == null) {
+			return null;
+		}
+		return ner.toString();
+	}
+	
+	public static String getSRL(TextAnnotation ta) {
+		if (!ta.hasView(ViewNames.SRL_VERB)) {
+			return null;
+		}
+		View srl = ta.getView(ViewNames.SRL_VERB);
+		if (srl == null) {
+			return null;
+		}
+		
+		String res = "";
+		for (Constituent c : srl.getConstituents()) {
+			if (c.getLabel().equals("Predicate")) {
+				String pred = c.getSurfaceForm();
+				String res_tmp = pred + "(";
+				for (Relation r : c.getOutgoingRelations()) {
+					String arg = r.getTarget().getSurfaceForm();
+					String label = r.getRelationName();
+					res_tmp = res_tmp + "[" + label + "]" + arg + " ### ";
+				}
+				if (c.getOutgoingRelations().size() == 0) {
+					res_tmp = res_tmp + ")\n";
+				} else {
+					res_tmp = res_tmp.substring(0, res_tmp.length()-5) + ")\n";
+				}
+				res = res + res_tmp;
+			}
+		}
+		if (res.length() == 0) {
+			return null;
+		}
+		res = res.substring(0, res.length()-1);
+		return res;
+	}
+	
 	public static ArrayList<String> getParse(TextAnnotation ta) {
 		ArrayList<String> res = new ArrayList<String>();
 		res.add("Query: " + ta.getText());
