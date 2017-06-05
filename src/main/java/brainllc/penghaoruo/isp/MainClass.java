@@ -35,7 +35,9 @@ public class MainClass {
 				if (line.length() == 0) {
 					tas.add(ft_tas);
 					ft_tas = new ArrayList<TextAnnotation>();
+					continue;
 				}
+				line = line.split(" = ")[0].trim();
 				try {
 					TextAnnotation ta = UserCuratorClient.annotate(file, index.toString(), line);
 					ft_tas.add(ta);
@@ -49,6 +51,7 @@ public class MainClass {
 					e.printStackTrace();
 				}
 				index += 1;
+				System.out.println(index);
 			}
 			try {
 				FileSerialization.serializeTAS(file + "-TA", tas);
