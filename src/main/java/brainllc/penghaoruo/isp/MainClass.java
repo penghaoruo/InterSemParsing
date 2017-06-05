@@ -13,7 +13,54 @@ public class MainClass {
 		//annotateQueries();
 		//getSemanticParses();
 		//annotateTest();
-		outputSignals("srl");
+		//outputSignals("srl");
+		
+		annotateFT();
+	}
+	
+	public static void annotateFT() {
+		UserCuratorClient.init();
+		
+		String path = "../../data/function_types/";
+		File f = new File(path);
+		String[] files = f.list();
+		BufferedWriter bw = IOManager.openWriter("annotate_miss_ft.txt");
+		for (String file : files) {
+			ArrayList<String> lines = IOManager.readLines(path + file);
+			ArrayList<ArrayList<TextAnnotation>> tas = new ArrayList<ArrayList<TextAnnotation>>();
+			ArrayList<TextAnnotation> ft_tas = new ArrayList<TextAnnotation>();
+			Integer index = 0;
+			for (String line : lines) {
+				line = line.trim();
+				if (line.length() == 0) {
+					tas.add(ft_tas);
+					ft_tas = new ArrayList<TextAnnotation>();
+				}
+				try {
+					TextAnnotation ta = UserCuratorClient.annotate(file, index.toString(), line);
+					ft_tas.add(ta);
+				} catch (Exception e) {
+					try {
+						bw.write(line + "\n");
+						bw.flush();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				}
+				index += 1;
+			}
+			try {
+				FileSerialization.serializeTAS(file + "-TA", tas);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void annotateTest() {

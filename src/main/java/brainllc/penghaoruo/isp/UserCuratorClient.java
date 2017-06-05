@@ -21,7 +21,19 @@ public class UserCuratorClient {
 		TextAnnotation ta = null;
 		try {
 			ta = annotator.createBasicTextAnnotation(corpusID, taID, text);
+			annotator.addView(ta, ViewNames.LEMMA);
+			annotator.addView(ta, ViewNames.POS);
+			annotator.addView(ta, ViewNames.SHALLOW_PARSE);
+			annotator.addView(ta, ViewNames.BROWN_CLUSTERS);
+			annotator.addView(ta, ViewNames.GAZETTEER);
+			annotator.addView(ta, ViewNames.NER_CONLL);
+			annotator.addView(ta, ViewNames.CLAUSES_BERKELEY);
+			annotator.addView(ta, ViewNames.CLAUSES_CHARNIAK);
+			annotator.addView(ta, ViewNames.CLAUSES_STANFORD);
+			annotator.addView(ta, ViewNames.DEPENDENCY_HEADFINDER);
+			annotator.addView(ta, ViewNames.DEPENDENCY_STANFORD);
 			annotator.addView(ta, ViewNames.SRL_VERB);
+			annotator.addView(ta, ViewNames.SRL_NOM);
 		} catch (AnnotatorException e) {
 			e.printStackTrace();
 		}
