@@ -24,7 +24,6 @@ public class UserCuratorClient {
 			annotator.addView(ta, ViewNames.LEMMA);
 			annotator.addView(ta, ViewNames.POS);
 			annotator.addView(ta, ViewNames.SHALLOW_PARSE);
-			annotator.addView(ta, ViewNames.GAZETTEER);
 			annotator.addView(ta, ViewNames.NER_CONLL);
 			annotator.addView(ta, ViewNames.CLAUSES_BERKELEY);
 			annotator.addView(ta, ViewNames.CLAUSES_CHARNIAK);
