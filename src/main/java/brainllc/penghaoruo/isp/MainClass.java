@@ -21,7 +21,7 @@ public class MainClass {
 	public static void annotateFT() {
 		UserCuratorClient.init();
 		
-		String path = "../../data/function_types/";
+		String path = "../function_types/";
 		File f = new File(path);
 		String[] files = f.list();
 		BufferedWriter bw = IOManager.openWriter("annotate_miss_ft.txt");
