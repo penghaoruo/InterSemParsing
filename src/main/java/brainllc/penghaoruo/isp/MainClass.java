@@ -11,11 +11,11 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 public class MainClass {
 	public static void main(String[] args) {
 		//annotateQueries();
-		//getSemanticParses();
+		getSemanticParses();
 		//annotateTest();
 		//outputSignals("srl");
 		
-		annotateFT();
+		//annotateFT();
 	}
 	
 	public static void annotateFT() {
@@ -149,43 +149,41 @@ public class MainClass {
 	}
 
 	public static void getSemanticParses() {
-		ArrayList<String> lines = IOManager.readLines("list.txt");
+		ArrayList<String> lines = IOManager.readLines("list_process.txt");
 		ArrayList<TextAnnotation> tas = null;
+		ArrayList<TextAnnotation> tas_srl = null;
 		for (String line: lines) {
 			try {
 				tas = FileSerialization.deserialize(line + "-TA");
+				tas_srl = FileSerialization.deserialize(line.substring(0, line.length()-3) + "ta-srl");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			BufferedWriter bw = IOManager.openWriter(line + "-ann");
+			BufferedWriter bw = IOManager.openWriter(line.substring(0, line.length()-3) + "proto");
+			int count = 0;
 			for (TextAnnotation ta: tas) {
-				ArrayList<String> strs = SemanticParse.getParse(ta);
-				if (strs == null) {
-					continue;
-				}
-				try {
-					for (String str : strs) {
-						bw.write(str + "\n");
-						bw.flush();
+				TextAnnotation ta_srl = ParseUtils.getSRLTA(ta, tas_srl);
+				if (ta_srl != null) {
+					count += 1;
+					/*
+					QueryTree tree = SemanticParse.getParse(ta, ta_srl);
+					if (tree != null) {
+						bw.write(ta.getText());
+						bw.write(tree.getStringRep());
+						bw.write("\n");
 					}
-					bw.write("\n");
-					bw.flush();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					*/
 				}
 			}
 			try {
 				bw.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			System.out.println("Processing Done!");
+			System.out.println(tas.size() + "\t" + count);
 		}
 	}
 	

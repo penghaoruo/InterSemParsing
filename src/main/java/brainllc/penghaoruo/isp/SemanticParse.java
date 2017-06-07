@@ -68,7 +68,7 @@ public class SemanticParse {
 		return res;
 	}
 	
-	public static ArrayList<String> getParse(TextAnnotation ta) {
+	public static QueryTree getParse(TextAnnotation ta, TextAnnotation ta_srl) {
 		ArrayList<String> res = new ArrayList<String>();
 		res.add("Query: " + ta.getText());
 		if (ta.getNumberOfSentences() > 1) {
@@ -156,7 +156,7 @@ public class SemanticParse {
 			return null;
 		}
 		*/
-		return res;
+		return null;
 	}
 	
 	private static String getHeadNoun(String vp) {
