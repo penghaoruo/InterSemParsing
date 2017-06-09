@@ -162,19 +162,20 @@ public class MainClass {
 				e.printStackTrace();
 			}
 			BufferedWriter bw = IOManager.openWriter(line.substring(0, line.length()-3) + "proto");
-			int count = 0;
 			for (TextAnnotation ta: tas) {
 				TextAnnotation ta_srl = ParseUtils.getSRLTA(ta, tas_srl);
 				if (ta_srl != null) {
-					count += 1;
-					/*
 					QueryTree tree = SemanticParse.getParse(ta, ta_srl);
 					if (tree != null) {
-						bw.write(ta.getText());
-						bw.write(tree.getStringRep());
-						bw.write("\n");
+						try {
+							bw.write(ta.getText());
+							bw.write(tree.getStringRep());
+							bw.write("\n");
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
-					*/
+					
 				}
 			}
 			try {
@@ -183,7 +184,6 @@ public class MainClass {
 				e.printStackTrace();
 			}
 			System.out.println("Processing Done!");
-			System.out.println(tas.size() + "\t" + count);
 		}
 	}
 	
@@ -207,12 +207,6 @@ public class MainClass {
 			BufferedWriter bw = IOManager.openWriter(line);
 			for (TextAnnotation ta: tas) {
 				String str = null;
-				if (p.equals("phrases")) {
-					str = SemanticParse.getPhrases(ta);
-				}
-				if (p.equals("ner")) {
-					str = SemanticParse.getNER(ta);
-				}
 				if (p.equals("srl")) {
 					str = SemanticParse.getSRL(ta);
 				}

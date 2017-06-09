@@ -10,29 +10,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 
 public class SemanticParse {
-	private static ArrayList<String> connectives = null;
-	
-	public static String getPhrases(TextAnnotation ta) {
-		if (!ta.hasView(ViewNames.SHALLOW_PARSE)) {
-			return null;
-		}
-		View phrases = ta.getView(ViewNames.SHALLOW_PARSE);
-		if (phrases == null) {
-			return null;
-		}
-		return phrases.toString();
-	}
-	
-	public static String getNER(TextAnnotation ta) {
-		if (!ta.hasView(ViewNames.NER_CONLL)) {
-			return null;
-		}
-		View ner = ta.getView(ViewNames.NER_CONLL);
-		if (ner == null) {
-			return null;
-		}
-		return ner.toString();
-	}
 	
 	public static String getSRL(TextAnnotation ta) {
 		if (!ta.hasView(ViewNames.SRL_VERB)) {
@@ -69,17 +46,16 @@ public class SemanticParse {
 	}
 	
 	public static QueryTree getParse(TextAnnotation ta, TextAnnotation ta_srl) {
-		ArrayList<String> res = new ArrayList<String>();
-		res.add("Query: " + ta.getText());
-		if (ta.getNumberOfSentences() > 1) {
+		// Check if the query can be processed
+		if (ta.getNumberOfSentences() > 1 || ta_srl.getNumberOfSentences() > 1) {
 			return null;
 		}
-		if (!(ta.hasView(ViewNames.SHALLOW_PARSE) && ta.hasView(ViewNames.SRL_VERB))) {
+		if (!(ta.hasView(ViewNames.SHALLOW_PARSE) && ta_srl.hasView(ViewNames.SRL_VERB))) {
 			return null;
 		}
-		
+
 		View phrases = ta.getView(ViewNames.SHALLOW_PARSE);
-		View srl = ta.getView(ViewNames.SRL_VERB);
+		View srl = ta_srl.getView(ViewNames.SRL_VERB);
 		View pos = ta.getView(ViewNames.POS);
 		View dep = ta.getView(ViewNames.DEPENDENCY_STANFORD);
 		View ner = ta.getView(ViewNames.NER_CONLL);
@@ -87,13 +63,11 @@ public class SemanticParse {
 		if (phrases == null || srl == null || pos == null || dep == null) {
 			return null;
 		}
-		res.add("Phrases: " + phrases.toString());
-		res.add("POS: " + pos.toString());
-		res.add("DEP: " + dep.toString());
-		res.add("SRL: " + srl.toString());
-		res.add("NER: " + ner.toString());
 		
-		ArrayList<Constituent> predicates = getPredicates(srl);
+		// Query can be processed!
+		System.out.print(".");
+		
+		ArrayList<Constituent> predicates = ParseUtils.getPredicates(srl);
 		if (predicates.size() == 0) {
 			return null;
 		}
@@ -126,9 +100,8 @@ public class SemanticParse {
 			if (vp.endsWith(" that")) {
 				vp = vp.substring(0, vp.length()-5);
 			}
-			res.add(vp);
 			
-			String np = getHeadNoun(vp);
+			String np = ParseUtils.getHeadNoun(vp);
 			// Get Properties
 			while (index < tokens.size()) {
 				while (index < tokens.size() && !(tokens.get(index).getLabel().equals("PP") || tokens.get(index).getLabel().equals("PP"))) {
@@ -146,54 +119,9 @@ public class SemanticParse {
 				if (pp.endsWith(" that")) {
 					pp = pp.substring(0, pp.length()-5);
 				}
-				res.add(np + " " + pp);
 			}
 		}
-		/*
-		if (predicates.size() > 1) {
-			System.out.println(ta.getText());
-			System.out.println(predicates);
-			return null;
-		}
-		*/
 		return null;
-	}
-	
-	private static String getHeadNoun(String vp) {
-		String np = "";
-		String[] strs = vp.split(" ");
-		np = strs[strs.length-1];
-		if (np.equals("that")) {
-			np = strs[strs.length-2];
-		}
-		return np;
-	}
-
-	private static ArrayList<Constituent> getPredicates(View srl) {
-		ArrayList<Constituent> chain = new ArrayList<Constituent>();
-		ArrayList<Integer> start = new ArrayList<Integer>();
-		ArrayList<Integer> end = new ArrayList<Integer>();
-		
-		for (Constituent c : srl.getConstituents()) {
-			if (c.getLabel().equals("Predicate")) {
-				if (isIgnoreVerb(c)) {
-					continue;
-				}
-				chain.add(c);
-				start.add(c.getStartSpan());
-				end.add(c.getEndSpan());
-			}
-			for (int j = 0; j < chain.size() - 1; j++) {
-				if (start.get(j+1) - end.get(j) <= 1) {
-					//System.out.println("Compound!!! " + chain.get(j) + "\t" + chain.get(j+1));
-					chain.remove(j);
-					start.remove(j);
-					end.remove(j);
-					j--;
-				}
-			}
-		}
-		return chain;
 	}
 
 	private static void generateFromSRL(View srl) throws Exception {
@@ -203,11 +131,11 @@ public class SemanticParse {
 		for (Constituent c : srl.getConstituents()) {
 			if (c.getLabel().equals("Predicate")) {
 				// ignore
-				if (isIgnoreVerb(c)) {
+				if (ParseUtils.isIgnoreVerb(c)) {
 					continue;
 				}
 				// augment
-				String predicate = augmentVerb(c);
+				String predicate = ParseUtils.augmentVerb(c);
 				chain.add(predicate);
 				start.add(c.getStartSpan());
 				end.add(c.getEndSpan());
@@ -228,7 +156,7 @@ public class SemanticParse {
 		}
 		// add discourse
 		for (Constituent c : srl.getConstituents()) {
-			if (c.getLabel().equals("AM-DIS") && isConnective(c.getSurfaceForm())) {
+			if (c.getLabel().equals("AM-DIS") && ParseUtils.isConnective(c.getSurfaceForm())) {
 				//System.out.println(c.getSurfaceForm()+"\t"+c.getStartSpan()+"\t"+c.getEndSpan());
 				//System.out.println(start);
 				//System.out.println(end);
@@ -260,44 +188,5 @@ public class SemanticParse {
 		}
 	}
 	
-	private static boolean isIgnoreVerb(Constituent c) {
-		String token = c.getAttribute("predicate");
-		if (token.equals("be") || token.equals("do") || token.equals("have") || token.equals("can") || token.equals("may") || token.equals("dare") || token.equals("must")
-				|| token.equals("ought") || token.equals("shall") || token.equals("will") || token.equals("may")) {
-			return true;
-		}
-		return false;
-	}
-	
-	private static String augmentVerb(Constituent c) {
-		String res = regularize(c.getAttribute("predicate")) + "." + c.getAttribute("SenseNumber");
-		List<Relation> rels = c.getOutgoingRelations();
-		for (Relation r : rels) {
-			String label = r.getTarget().getLabel();
-			if (label.equals("AM-NEG")) {
-				res = res + "(not)";
-			}
-			if (label.equals("C-V")) {
-				res = res + "[" + r.getTarget().getTokenizedSurfaceForm().replaceAll("\n", " ") + "]";
-			}
-		}
-		return res;
-	}
-	
-	private static String regularize(String str) {
-		if (str.startsWith("\'")) {
-			str = str.substring(1, str.length());
-		}
-		return str;
-	}
-	
-	private static boolean isConnective(String str) {
-		if (connectives == null) {
-			connectives = IOManager.readLines("data/functionwords/EnglishConjunctions.txt");
-		}
-		if (connectives.contains(str.toLowerCase())) {
-			return true;
-		}
-		return false;
-	}
+
 }
