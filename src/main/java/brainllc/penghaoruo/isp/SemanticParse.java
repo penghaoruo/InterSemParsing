@@ -1,8 +1,11 @@
 package brainllc.penghaoruo.isp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
+import brainllc.penghaoruo.isp.QueryTree.QueryNode;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Relation;
@@ -71,57 +74,83 @@ public class SemanticParse {
 		if (predicates.size() == 0) {
 			return null;
 		}
-		if (predicates.size() >= 1) {
-			List<Constituent> tokens = phrases.getConstituents();
-			// Get Verb Phrase
-			String vp = null;
-			int index = 0;
-			while (index < tokens.size()) {
-				Constituent token = tokens.get(index);
-				if (token.getLabel().equals("VP")) {
-					vp = token.getTokenizedSurfaceForm();
-					break;
-				}
-				index += 1;
+
+		HashMap<Constituent, Integer> pred_map = new HashMap<Constituent, Integer>();
+		for (Constituent pred : predicates) {
+			ArrayList<Constituent> nodes_dep = ParseUtils.getConstituentsCovering(dep,pred);
+			int level = ParseUtils.getLevel(nodes_dep);
+			pred_map.put(pred, level);
+		}
+		pred_map = (HashMap<Constituent, Integer>) MapUtil.sortByValue(pred_map);
+		
+		QueryTree tree = new QueryTree();
+		int prev_level = -1;
+		int cur_level = -1;
+		for (Entry<Constituent, Integer> pair : pred_map.entrySet()) {
+			Constituent pred = pair.getKey();
+			int level = pair.getValue();
+			if (level > cur_level) {
+				prev_level = cur_level;
+				cur_level = level;
 			}
-			if (vp == null) {
-				return null;
+			QueryNode node = new QueryNode();
+			node.data = ParseUtils.populateNode(pred, phrases, pos, ner);
+			QueryNode parent_node = ParseUtils.getParent(tree, pred_map, prev_level, dep, pred);
+			node.parent = parent_node;
+			parent_node.children.add(node);
+		}
+		return tree;
+		
+		/*
+		List<Constituent> tokens = phrases.getConstituents();
+		// Get Verb Phrase
+		String vp = null;
+		int index = 0;
+		while (index < tokens.size()) {
+			Constituent token = tokens.get(index);
+			if (token.getLabel().equals("VP")) {
+				vp = token.getTokenizedSurfaceForm();
+				break;
 			}
 			index += 1;
-			while (index < tokens.size()) {
-				Constituent token = tokens.get(index);
-				if (token.getLabel().equals("NP")) {
-					vp += " " + token.getTokenizedSurfaceForm();
-				} else {
-					break;
-				}
+		}
+		if (vp == null) {
+			return null;
+		}
+		index += 1;
+		while (index < tokens.size()) {
+			Constituent token = tokens.get(index);
+			if (token.getLabel().equals("NP")) {
+				vp += " " + token.getTokenizedSurfaceForm();
+			} else {
+				break;
+			}
+			index += 1;
+		}
+		if (vp.endsWith(" that")) {
+			vp = vp.substring(0, vp.length()-5);
+		}
+		
+		String np = ParseUtils.getHeadNoun(vp);
+		// Get Properties
+		while (index < tokens.size()) {
+			while (index < tokens.size() && !(tokens.get(index).getLabel().equals("PP") || tokens.get(index).getLabel().equals("PP"))) {
 				index += 1;
 			}
-			if (vp.endsWith(" that")) {
-				vp = vp.substring(0, vp.length()-5);
+			if (index >= tokens.size()) {
+				break;
 			}
-			
-			String np = ParseUtils.getHeadNoun(vp);
-			// Get Properties
-			while (index < tokens.size()) {
-				while (index < tokens.size() && !(tokens.get(index).getLabel().equals("PP") || tokens.get(index).getLabel().equals("PP"))) {
-					index += 1;
-				}
-				if (index >= tokens.size()) {
-					break;
-				}
-				String pp = tokens.get(index).getTokenizedSurfaceForm();
+			String pp = tokens.get(index).getTokenizedSurfaceForm();
+			index += 1;
+			while (index < tokens.size() && tokens.get(index).getLabel().equals("NP")) {
+				pp += " " + tokens.get(index).getTokenizedSurfaceForm();
 				index += 1;
-				while (index < tokens.size() && tokens.get(index).getLabel().equals("NP")) {
-					pp += " " + tokens.get(index).getTokenizedSurfaceForm();
-					index += 1;
-				}
-				if (pp.endsWith(" that")) {
-					pp = pp.substring(0, pp.length()-5);
-				}
+			}
+			if (pp.endsWith(" that")) {
+				pp = pp.substring(0, pp.length()-5);
 			}
 		}
-		return null;
+		*/
 	}
 
 	private static void generateFromSRL(View srl) throws Exception {

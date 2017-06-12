@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueryTree {
+    public static class QueryNode {
+        public PredArg data;
+        public QueryNode parent;
+        public List<QueryNode> children;
+    }
+    
     public QueryNode root;
+    
+    public QueryTree() {
+        root = new QueryNode();
+        root.children = new ArrayList<QueryNode>();
+    }
 
     public QueryTree(PredArg rootData) {
         root = new QueryNode();
         root.data = rootData;
         root.children = new ArrayList<QueryNode>();
-    }
-
-    public static class QueryNode {
-        public PredArg data;
-        public QueryNode parent;
-        public List<QueryNode> children;
     }
     
     public String getStringRep() {
