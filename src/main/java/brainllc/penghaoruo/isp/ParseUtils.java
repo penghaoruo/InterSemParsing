@@ -112,9 +112,6 @@ public class ParseUtils {
 				list.add(c);
 			}
 		}
-		if (list.size() != 1) {
-			System.out.println("Imperfect Match!");
-		}
 		return list;
 	}
 
@@ -146,15 +143,35 @@ public class ParseUtils {
 		for (Relation r : pred.getOutgoingRelations()) {
 			String arg = r.getTarget().getTokenizedSurfaceForm();
 			String role = r.getTarget().getLabel();
-			String type = "";
-			ArrayList<Constituent> cons = getConstituentsCovering(ner, pred);
-			if (cons != null) {
-				type = cons.get(0).getLabel();
-			}
+			String type = populateType(ner, r.getTarget());
 			String res = arg + "|" + role + "|" + type;
 			pa.args.add(res);
 		}
 		return pa;
+	}
+
+	private static String populateType(View ner, Constituent arg) {
+		String type = "";
+		// From NER
+		ArrayList<Constituent> cons = getConstituentsCovering(ner, arg);
+		if (cons != null && cons.size() > 0) {
+			type = cons.get(0).getLabel();
+		}
+		// From Pronoun
+		if (type.equals("") && isPronoun(arg.getTokenizedSurfaceForm())) {
+			type = "PER";
+		}
+		return type;
+	}
+
+	private static boolean isPronoun(String str) {
+		str = str.trim().toLowerCase();
+		if (str.equals("i") || str.equals("we") || str.equals("us") || str.equals("you") 
+				|| str.equals("he") || str.equals("him") || str.equals("she") || str.equals("her")
+				|| str.equals("they") || str.equals("them")) {
+			return true;
+		}
+		return false;
 	}
 
 	public static QueryNode getParent(QueryTree tree, HashMap<Constituent, Integer> pred_map, int prev_level, View dep, Constituent pred) {
@@ -171,16 +188,12 @@ public class ParseUtils {
 			System.out.println("Get Parent Error One!");
 			return null;
 		}
-		if (pred_candidates.size() == 1) {
-			return findNodeInTree(pred_candidates.get(0), tree.root);
-		}
 		for (Constituent c : pred_candidates) {
 			if (checkInDepPath(dep, c, pred)) {
 				return findNodeInTree(c, tree.root);
 			}
 		}
-		System.out.println("Get Parent Error Two!");
-		return null;
+		return tree.root;
 	}
 
 	public static boolean checkInDepPath(View dep, Constituent c, Constituent pred) {

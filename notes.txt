@@ -1,0 +1,4 @@
+Total Queries: 24479
+Queries with SRL: 20316
+Queries with SRL+DEP: 16925
+Total Output: 16070

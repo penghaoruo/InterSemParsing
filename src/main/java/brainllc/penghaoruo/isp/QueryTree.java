@@ -8,13 +8,20 @@ public class QueryTree {
         public PredArg data;
         public QueryNode parent;
         public List<QueryNode> children;
+        
+        public QueryNode() {
+        	data = new PredArg();
+        	data.pred = null;
+        	data.args = null;
+            parent = null;
+            children = new ArrayList<QueryNode>();
+        }
     }
     
     public QueryNode root;
     
     public QueryTree() {
         root = new QueryNode();
-        root.children = new ArrayList<QueryNode>();
     }
 
     public QueryTree(PredArg rootData) {
@@ -24,7 +31,11 @@ public class QueryTree {
     }
     
     public String getStringRep() {
-    	return getLevelRep(root, 0, "");
+    	String res = "";
+    	for (QueryNode node : root.children) {
+    		res += getLevelRep(node, 0, "");
+    	}
+    	return res;
     }
 
 	private String getLevelRep(QueryNode node, int level, String res) {

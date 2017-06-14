@@ -152,6 +152,7 @@ public class MainClass {
 		ArrayList<String> lines = IOManager.readLines("list_process.txt");
 		ArrayList<TextAnnotation> tas = null;
 		ArrayList<TextAnnotation> tas_srl = null;
+		int count = 0;
 		for (String line: lines) {
 			try {
 				tas = FileSerialization.deserialize(line + "-TA");
@@ -167,10 +168,12 @@ public class MainClass {
 				if (ta_srl != null) {
 					QueryTree tree = SemanticParse.getParse(ta, ta_srl);
 					if (tree != null) {
+						count += 1;
 						try {
-							bw.write(ta.getText());
+							bw.write(ta.getText() + "\n");
 							bw.write(tree.getStringRep());
 							bw.write("\n");
+							bw.flush();;
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -185,6 +188,7 @@ public class MainClass {
 			}
 			System.out.println("Processing Done!");
 		}
+		System.out.println(count);
 	}
 	
 	public static void outputSignals(String p) {

@@ -53,7 +53,7 @@ public class SemanticParse {
 		if (ta.getNumberOfSentences() > 1 || ta_srl.getNumberOfSentences() > 1) {
 			return null;
 		}
-		if (!(ta.hasView(ViewNames.SHALLOW_PARSE) && ta_srl.hasView(ViewNames.SRL_VERB))) {
+		if (!(ta.hasView(ViewNames.DEPENDENCY_STANFORD) && ta_srl.hasView(ViewNames.SRL_VERB))) {
 			return null;
 		}
 
