@@ -1,4 +1,13 @@
 Total Queries: 24479
 Queries with SRL: 20316
 Queries with SRL+DEP: 16925
-Total Output: 16070
+Total Output: 16597
+
+TODO:
+Clean Arguments => measure similarity
+Key phrase => link to "that" (basic coref)
+Normalize the text
+	1. remove a),b) ...
+	2. add subject "I"
+Propbank License: https://github.com/propbank/propbank-frames/blob/master/LICENSE
+SRL: train on new propbank data => frames increase from 3325 to 6312 (maybe not needed)

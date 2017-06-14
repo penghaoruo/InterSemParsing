@@ -48,7 +48,7 @@ public class SemanticParse {
 		return res;
 	}
 	
-	public static QueryTree getParse(TextAnnotation ta, TextAnnotation ta_srl) {
+	public static QueryTree getParse(TextAnnotation ta, TextAnnotation ta_srl, FramesManager fm, FrameMapping fmap) {
 		// Check if the query can be processed
 		if (ta.getNumberOfSentences() > 1 || ta_srl.getNumberOfSentences() > 1) {
 			return null;
@@ -70,7 +70,7 @@ public class SemanticParse {
 		// Query can be processed!
 		System.out.print(".");
 		
-		ArrayList<Constituent> predicates = ParseUtils.getPredicates(srl);
+		ArrayList<Constituent> predicates = ParseUtils.getPredicates(srl, pos, phrases);
 		if (predicates.size() == 0) {
 			return null;
 		}
@@ -94,7 +94,7 @@ public class SemanticParse {
 				cur_level = level;
 			}
 			QueryNode node = new QueryNode();
-			node.data = ParseUtils.populateNode(pred, phrases, pos, ner);
+			node.data = ParseUtils.populateNode(pred, phrases, pos, ner, fm, fmap);
 			QueryNode parent_node = ParseUtils.getParent(tree, pred_map, prev_level, dep, pred);
 			node.parent = parent_node;
 			parent_node.children.add(node);

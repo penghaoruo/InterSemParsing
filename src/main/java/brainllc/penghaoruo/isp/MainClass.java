@@ -149,6 +149,10 @@ public class MainClass {
 	}
 
 	public static void getSemanticParses() {
+		FramesManager fm = FramesManager.getPropbankInstance();
+		//FramesManager nm = FramesManager.getNombankInstance();
+		FrameMapping fmap = new FrameMapping();
+		
 		ArrayList<String> lines = IOManager.readLines("list_process.txt");
 		ArrayList<TextAnnotation> tas = null;
 		ArrayList<TextAnnotation> tas_srl = null;
@@ -166,7 +170,7 @@ public class MainClass {
 			for (TextAnnotation ta: tas) {
 				TextAnnotation ta_srl = ParseUtils.getSRLTA(ta, tas_srl);
 				if (ta_srl != null) {
-					QueryTree tree = SemanticParse.getParse(ta, ta_srl);
+					QueryTree tree = SemanticParse.getParse(ta, ta_srl, fm, fmap);
 					if (tree != null) {
 						count += 1;
 						try {

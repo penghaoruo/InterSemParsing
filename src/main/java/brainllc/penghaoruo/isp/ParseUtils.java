@@ -48,8 +48,8 @@ public class ParseUtils {
 	
 	public static boolean isIgnoreVerb(Constituent c) {
 		String token = c.getAttribute("predicate");
-		if (token.equals("be") || token.equals("do") || token.equals("have") || token.equals("can") || token.equals("may") || token.equals("dare") || token.equals("must")
-				|| token.equals("ought") || token.equals("shall") || token.equals("will") || token.equals("may")) {
+		if (token.equals("can") || token.equals("may") || token.equals("dare") || token.equals("must")
+				|| token.equals("ought") || token.equals("shall") || token.equals("will")) {
 			return true;
 		}
 		return false;
@@ -75,7 +75,7 @@ public class ParseUtils {
 		return np;
 	}
 
-	public static ArrayList<Constituent> getPredicates(View srl) {
+	public static ArrayList<Constituent> getPredicates(View srl, View pos, View chunker) {
 		ArrayList<Constituent> chain = new ArrayList<Constituent>();
 		ArrayList<Integer> start = new ArrayList<Integer>();
 		ArrayList<Integer> end = new ArrayList<Integer>();
@@ -83,6 +83,12 @@ public class ParseUtils {
 		for (Constituent c : srl.getConstituents()) {
 			if (c.getLabel().equals("Predicate")) {
 				if (isIgnoreVerb(c)) {
+					continue;
+				}
+				if (!checkPredicatePOS(c, pos)) {
+					continue;
+				}
+				if (!checkPredicateChunker(c, chunker)) {
 					continue;
 				}
 				chain.add(c);
@@ -100,6 +106,26 @@ public class ParseUtils {
 			}
 		}
 		return chain;
+	}
+
+	private static boolean checkPredicateChunker(Constituent c, View chunker) {
+		ArrayList<Constituent> con_list = getConstituentsCovering(chunker, c);
+		for (Constituent con : con_list) {
+			if (con.getLabel().startsWith("VP")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean checkPredicatePOS(Constituent c, View pos) {
+		ArrayList<Constituent> con_list = getConstituentsCovering(pos, c);
+		for (Constituent con : con_list) {
+			if (con.getLabel().startsWith("VB")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static ArrayList<Constituent> getConstituentsCovering(View view, Constituent pred) {
@@ -135,7 +161,7 @@ public class ParseUtils {
 		}
 	}
 
-	public static PredArg populateNode(Constituent pred, View phrases, View pos, View ner) {
+	public static PredArg populateNode(Constituent pred, View phrases, View pos, View ner, FramesManager fm, FrameMapping fmap) {
 		// TODO: more hack
 		PredArg pa = new PredArg();
 		pa.pred = pred;
@@ -143,6 +169,9 @@ public class ParseUtils {
 		for (Relation r : pred.getOutgoingRelations()) {
 			String arg = r.getTarget().getTokenizedSurfaceForm();
 			String role = r.getTarget().getLabel();
+			System.out.println(r.getTarget());
+			System.out.println(pred.getView().getConstituentsCovering(r.getTarget()).get(0).getLabel());
+			System.out.println(r.getTarget().getLabel());
 			String type = populateType(ner, r.getTarget());
 			String res = arg + "|" + role + "|" + type;
 			pa.args.add(res);
@@ -166,9 +195,10 @@ public class ParseUtils {
 
 	private static boolean isPronoun(String str) {
 		str = str.trim().toLowerCase();
-		if (str.equals("i") || str.equals("we") || str.equals("us") || str.equals("you") 
-				|| str.equals("he") || str.equals("him") || str.equals("she") || str.equals("her")
-				|| str.equals("they") || str.equals("them")) {
+		if (str.equals("i") || str.equals("we") || str.equals("us") || str.equals("you") || str.equals("youself") 
+				|| str.equals("he") || str.equals("him") || str.equals("himself") 
+				|| str.equals("she") || str.equals("her") || str.equals("herself") 
+				|| str.equals("they") || str.equals("them") || str.equals("somebody") ) {
 			return true;
 		}
 		return false;
