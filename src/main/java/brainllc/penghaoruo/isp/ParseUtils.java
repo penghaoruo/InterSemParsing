@@ -28,7 +28,7 @@ public class ParseUtils {
 		String res = regularize(c.getAttribute("predicate")) + "." + c.getAttribute("SenseNumber");
 		List<Relation> rels = c.getOutgoingRelations();
 		for (Relation r : rels) {
-			String label = r.getTarget().getLabel();
+			String label = r.getRelationName();
 			if (label.equals("AM-NEG")) {
 				res = res + "(not)";
 			}
@@ -166,12 +166,21 @@ public class ParseUtils {
 		PredArg pa = new PredArg();
 		pa.pred = pred;
 		pa.args = new ArrayList<String>();
+		
+		FrameData frame = fm.getFrame(pred.getAttribute("predicate"));
+		
 		for (Relation r : pred.getOutgoingRelations()) {
+			String role = r.getRelationName();
+			if (role.equals("AM-NEG") || role.equals("C-V")) {
+				continue;
+			}
+			if (frame != null) {
+				String description = frame.getArgumentDescription(pred.getAttribute("sense"), role);
+				if (description != null) {
+					role = role + "(" + description + ")";
+				}
+			}
 			String arg = r.getTarget().getTokenizedSurfaceForm();
-			String role = r.getTarget().getLabel();
-			System.out.println(r.getTarget());
-			System.out.println(pred.getView().getConstituentsCovering(r.getTarget()).get(0).getLabel());
-			System.out.println(r.getTarget().getLabel());
 			String type = populateType(ner, r.getTarget());
 			String res = arg + "|" + role + "|" + type;
 			pa.args.add(res);

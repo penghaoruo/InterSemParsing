@@ -78,7 +78,14 @@ public class FrameData {
 
     public String getArgumentDescription(String sense, String arg) {
         assert this.senseFrameData.containsKey(sense);
+        if (senseFrameData.get(sense) == null || senseFrameData.get(sense).argDescription == null) {
+        	return null;
+        }
+       
         assert this.senseFrameData.get(sense).argDescription.containsKey(arg);
+        if (senseFrameData.get(sense).argDescription.get(arg) == null) {
+        	return null;
+        }
 
         return senseFrameData.get(sense).argDescription.get(arg).description;
     }
