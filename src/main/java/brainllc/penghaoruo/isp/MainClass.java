@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -16,8 +17,50 @@ public class MainClass {
 		//outputSignals("srl");
 		
 		//annotateFT();
+		
+		//getUnsupportedQueries();
 	}
 	
+	private static ArrayList<String> getUnsupportedPredicates() {
+		ArrayList<String> strs = new ArrayList<String>();
+		strs.add("email");
+		strs.add("text");
+		return strs;
+	}
+	
+	public static void getUnsupportedQueries() {
+		ArrayList<String> predicates = getUnsupportedPredicates();
+		HashMap<String, ArrayList<String>> queryMap = new HashMap<String, ArrayList<String>>();
+		for (String str : predicates) {
+			queryMap.put(str, new ArrayList<String>());
+		}
+		
+		ArrayList<String> files = IOManager.readLines("list.txt");
+		for (String file : files) {
+			ArrayList<String> lines = IOManager.readLines("../../data/queries/" + file);
+			for (String line : lines) {
+				String text = line.toLowerCase().trim();
+				int k = predicates.indexOf(text.split(" ")[0]);
+				if (k != -1) {
+					String key = predicates.get(k);
+					queryMap.get(key).add(line);
+				}
+			}
+		}
+		
+		for (String key : queryMap.keySet()) {
+			try {
+				BufferedWriter bw = IOManager.openWriter(key + "_queries.txt");
+				for (String str : queryMap.get(key)) {
+					bw.write(str + "\n");
+				}
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static void annotateFT() {
 		UserCuratorClient.init();
 		

@@ -4,10 +4,53 @@ Queries with SRL+DEP: 16925
 Total Output: 16597
 
 TODO:
-Clean Arguments => measure similarity
-Key phrase => link to "that" (basic coref)
-Normalize the text
-	1. remove a),b) ...
-	2. add subject "I"
+Service:
+	1. Web server (Later)
+SRL coverage
+	1. Normalize Text (High)
+	2. Make SRL more robust (Low)
+	3. Re-train for "Text", etc (High)
+Dependency Parse
+	1. Integrate Google Parse (Low)
+Hack:
+	1. SRL-argument precision
+		1. generate json
+		2. missing -> Dep/NP
+		3. incorrect -> Dep/NP
+	2. Specificness -> break up based on Dep/NP
+	3. "that" -> key phrase: SRL-arg/distance
+
 Propbank License: https://github.com/propbank/propbank-frames/blob/master/LICENSE
 SRL: train on new propbank data => frames increase from 3325 to 6312 (maybe not needed)
+	email / text
+
+
+People:
+	Consider?
+
+
+Training similarity directly
+Generate Json
+Email/Text Queries
+
+
+
+Find me a campsite near Washington DC that can accommodate a group of 25 people staying in 10 tents, has shower facilities, and has openings during the first two weeks of July 2017.
+
+
+
+TODO:
+1 Similarity => Top K (main frame)
+  1.0 Expand Predicate (Linguistic + Data + Paraphrase(Human/Automatic))
+  1.1 Design Doc (previous)
+  1.2 Data
+2 Integration
+  2.1 SRL Server => instruction
+  2.2 SRL re-train => data generation, frame definition (variable extraction)
+  2.3 Time per SRL => eval, backend engineer
+
+1 Normalize Text
+2 Code Refactor
+
+August, September, October
+Ask advisor
