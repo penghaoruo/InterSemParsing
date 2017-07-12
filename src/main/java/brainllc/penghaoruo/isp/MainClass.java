@@ -12,8 +12,8 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 public class MainClass {
 	public static void main(String[] args) {
 		//annotateQueries();
-		getSemanticParses();
-		//annotateTest();
+		//getSemanticParses();
+		annotateTest();
 		//outputSignals("srl");
 		
 		//annotateFT();

@@ -4,6 +4,7 @@ import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorService;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager;
 import edu.illinois.cs.cogcomp.curator.CuratorFactory;
 
 public class UserCuratorClient {
@@ -11,7 +12,11 @@ public class UserCuratorClient {
 	
 	public static void init() {
 		try {
-			annotator = CuratorFactory.buildCuratorClient();
+			ResourceManager rm = new ResourceManager("curator-config.properties");
+			annotator = CuratorFactory.buildCuratorClient(rm);
+			System.out.println(rm.getCuratorHost());
+			System.out.println(rm.getCuratorPort());
+			//annotator = CuratorFactory.buildCuratorClient();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
